@@ -203,65 +203,44 @@ class Mouse:
         self.tile = None
 
 
-    def get_cell(self):
-
-        pass
-
-
 mouse = Mouse()
 
 
-## Mouse control
-mouse_pos = (0, 0)
-mouse_cell = (0, 0)
-mouse_down = None
-mouse_up = None
-cell_clicked = None
-mouse_tile = None
 
 ## Main Game Loop
 running = True
+
 while running:
 
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
+
             running = False
             break
 
         if event.type == pygame.MOUSEMOTION:
-            '''
-            mouse_pos = event.pos
-            mouse_cell = cell_pos(mouse_pos)
 
-            text_str = str(mouse_cell)
-            text = font.render(text_str, True, font_color)
-            text_rect.bottomleft = (0, screen_size[1])
-            '''
             mouse.pos = event.pos
             mouse.cell = cell_pos(mouse.pos)
 
             text_str = str(mouse.cell)
             text = font.render(text_str, True, font_color)
             text_rect.bottomleft = (0, screen_size[1])
-            #'''
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            '''
-            mouse_down = cell_pos(event.pos)
-            cell_clicked = None
-            '''
+
             mouse.left_down = cell_pos(event.pos)
             mouse.cell_clicked = None
-            #'''
+
         if event.type == pygame.MOUSEBUTTONUP:
-            '''
-            mouse_up = cell_pos(event.pos)
-            if mouse_up == mouse_down:
-                cell_clicked = mouse_cell
-            '''
+
             mouse.left_up = cell_pos(event.pos)
+
             if mouse.left_up == mouse.left_down:
+
                 mouse.cell_clicked = mouse.cell
-            #'''
+
     ## Blit background and buttons.
     screen.blit(background, (0, 0))
     toggle_buttons_group.draw(screen)
@@ -272,34 +251,30 @@ while running:
 
         ## Check if toggle button was clicked.
         done = False
+
         for button in toggle_buttons_group.sprites():
+
             button_cell = cell_pos(button.pos)
 
             if mouse.cell_clicked == button_cell:
+
                 mouse.cell_clicked = None
                 done = True
                 break
 
         ## Check if select button was clicked.
         if not done:
+
             for button in select_buttons_group.sprites():
+
                 button_cell = cell_pos(button.pos)
-                '''
-                if cell_clicked == button_cell:
-                    
+
+                if mouse.cell_clicked == button_cell:
+                    '''
                     col, row = cell_clicked
                     area_pos = (col * set_size[0], row * set_size[1])
                     area = pygame.Rect(*area_pos, *set_size)
-
-                    tile = Tile()
-                    tile.image.blit(button.image, (0, 0))
-                    tile.image = tile.image.convert_alpha()
-                    tile.pos = cell_clicked
-                    mouse_tile = tile
-                    cell_clicked = None
-                    break
-                '''
-                if mouse.cell_clicked == button_cell:
+                    '''
                     tile = Tile()
                     tile.image.blit(button.image, (0, 0))
                     tile.image = tile.image.convert_alpha()
@@ -307,27 +282,22 @@ while running:
                     mouse.tile = tile
                     mouse.cell_clicked = None
                     break
-                #'''
+
     #elif cell_clicked and mouse_tile:
     elif mouse.cell_clicked and mouse.tile:
-        '''
-        ## Place mouse_tile on cell_clicked.
-        if cell_clicked not in [map_tile.pos for map_tile in map_tiles]:
-            mouse_tile.rect = mouse_tile.rect.move(pixel_pos(cell_clicked))
-            map_tiles.add(mouse_tile)
 
-        mouse_tile = None
-        '''
         temp = [map_tile.pos for map_tile in map_tiles]
 
         ## Place mouse.tile on mouse.cell_clicked.
         pix_pos = pixel_pos(mouse.cell_clicked)
+
         if mouse.cell_clicked not in temp:
+
             mouse.tile.rect = mouse.tile.rect.move(pix_pos)
             map_tiles.add(mouse.tile)
 
         mouse.tile = None
-        #'''
+
     ## Draw map tiles.
     map_tiles.draw(screen)
 
@@ -335,19 +305,12 @@ while running:
     grid.draw(screen)
 
     ## Draw selected tile at mouse location.
-    '''
-    if mouse_tile:
-        sub_x, sub_y = mouse_pos
-        offset_x, offset_y = (set_size[0] // 2, set_size[1] // 2)
-        sub_pos = (sub_x - offset_x, sub_y - offset_y)
-        screen.blit(mouse_tile.image, sub_pos)
-    '''
     if mouse.tile:
+
         sub_x, sub_y = mouse.pos
         offset_x, offset_y = (set_size[0] // 2, set_size[1] // 2)
         sub_pos = (sub_x - offset_x, sub_y - offset_y)
         screen.blit(mouse.tile.image, sub_pos)
-    #'''
 
     ## Draw text (mouse.pos coordinates at screen.bottomleft)
     screen.blit(text, text_rect)
