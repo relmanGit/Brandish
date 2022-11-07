@@ -124,6 +124,7 @@ tile_map.tiles = tiles
 b_default = Button()
 b_default.image.fill(MY_GREEN)
 b_default.rect = b_default.image.get_rect()
+b_default.cell = (18, 0)
 b_default.pos = (18 * set_size[0], 0)
 b_default.rect = b_default.rect.move(*b_default.pos)
 b_default.name = 'default'
@@ -131,6 +132,7 @@ b_default.name = 'default'
 b_night = Button()
 b_night.image.fill(BLUE)
 b_night.rect = b_night.image.get_rect()
+b_night.cell = (17, 0)
 b_night.pos = (17 * set_size[0], 0)
 b_night.rect = b_night.rect.move(*b_night.pos)
 b_night.name = 'night'
@@ -138,11 +140,36 @@ b_night.name = 'night'
 b_hot = Button()
 b_hot.image.fill(MY_RED)
 b_hot.rect = b_hot.image.get_rect()
+b_hot.cell = (16, 0)
 b_hot.pos = (16 * set_size[0], 0)
 b_hot.rect = b_hot.rect.move(*b_hot.pos)
 b_hot.name = 'hot'
 
-toggle_buttons = [b_default, b_night, b_hot]
+#toggle_buttons = [b_default, b_night, b_hot]
+
+b_drop = Button()
+b_drop.image.fill(MY_RED)
+b_drop.rect = b_drop.image.get_rect()
+b_drop.cell = (18, 0)
+b_drop.pos = (b_drop.cell[0] * set_size[0], b_drop.cell[1] * set_size[1])
+b_drop.rect = b_drop.rect.move(*b_drop.pos)
+b_drop.name = 'drop'
+b_drop.description = '1 time drag-drop'
+b_drop.toggled = False
+
+b_drag = Button()
+b_drag.image.fill(MY_GREEN)
+b_drag.rect = b_drag.image.get_rect()
+b_drag.cell = (17, 0)
+b_drag.pos = (b_drag.cell[0] * set_size[0], b_drag.cell[1] * set_size[1])
+b_drag.rect = b_drag.rect.move(*b_drag.pos)
+b_drag.name = 'drag'
+b_drag.description = 'many drag-drop'
+b_drop.toggled = False
+
+#toggle_buttons = [b_drop, b_drag]
+
+toggle_buttons = []
 
 ## Create select buttons.
 select_buttons = []
@@ -163,6 +190,7 @@ for tile in tiles:
     button.image = tile.image
     button.rect = button.image.get_rect()
     column = (col_start + col)
+    button.cell = (column, row)
     button.pos = (column * set_size[0], row * set_size[1])
     button.rect = button.rect.move(*button.pos)
     select_buttons.append(button)
@@ -230,23 +258,38 @@ while running:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
 
-            mouse.left_down = cell_pos(event.pos)
-            mouse.cell_clicked = None
+            ## Left click pressed.
+            if event.button == 1:
+
+                mouse.left_down = cell_pos(event.pos)
+                mouse.cell_clicked = None
+
+            ## Right click pressed.
+            elif event.button == 3:
+
+                mouse.right_down = cell_pos(event.pos)
+                mouse.cell_clicked = None
 
         if event.type == pygame.MOUSEBUTTONUP:
 
-            mouse.left_up = cell_pos(event.pos)
+            ## Left click released.
+            if event.button == 1:
 
-            if mouse.left_up == mouse.left_down:
+                mouse.left_up = cell_pos(event.pos)
 
-                mouse.cell_clicked = mouse.cell
+                if mouse.left_up == mouse.left_down:
+
+                    mouse.cell_clicked = mouse.cell
+
+            ## Right click released.
+            if event.button == 3:
+                pass
 
     ## Blit background and buttons.
     screen.blit(background, (0, 0))
     toggle_buttons_group.draw(screen)
     select_buttons_group.draw(screen)
 
-    #if cell_clicked and not mouse_tile:
     if mouse.cell_clicked and not mouse.tile:
 
         ## Check if toggle button was clicked.
@@ -258,8 +301,14 @@ while running:
 
             if mouse.cell_clicked == button_cell:
 
+                if button.toggled:
+                    button.toggled = False
+                else:
+                    button.toggled = True
+
                 mouse.cell_clicked = None
                 done = True
+
                 break
 
         ## Check if select button was clicked.
@@ -279,11 +328,12 @@ while running:
                     tile.image.blit(button.image, (0, 0))
                     tile.image = tile.image.convert_alpha()
                     tile.pos = mouse.cell_clicked
+
                     mouse.tile = tile
                     mouse.cell_clicked = None
+
                     break
 
-    #elif cell_clicked and mouse_tile:
     elif mouse.cell_clicked and mouse.tile:
 
         temp = [map_tile.pos for map_tile in map_tiles]
