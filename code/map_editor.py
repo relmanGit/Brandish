@@ -1,137 +1,10 @@
 import pygame
 from constants import *
 import tile_map as tm
+from hellper import *
 
 
 
-## Preset some settings.
-screen_size = (SCREEN_WIDTH*2, SCREEN_HEIGHT*2.1)
-set_path = f'../assets/img/platform_new/'
-set_size = (32, 32)
-
-herotileset = 'hero_vert.png'
-mytileset = 'tile_set.png'
-
-which_set = herotileset
-
-
-
-## Position manipulation hellper functions.
-def cell_pos(pixel_pos, cell_size=set_size):
-
-    cell_width, cell_height = cell_size
-    pix_x, pix_y = pixel_pos
-    cell_x = (pix_x // cell_width)
-    cell_y = (pix_y // cell_height)
-    return (cell_x, cell_y)
-
-def pixel_pos(cell_pos, cell_size=set_size):
-    
-    cell_width, cell_height = cell_size
-    cell_x, cell_y = cell_pos
-    pix_x = cell_x * cell_width
-    pix_y = cell_y * cell_height
-    return (pix_x, pix_y)
-
-
-
-## Hellper classes.
-class Grid:
-
-
-    def __init__(self, cell_width=set_size[0], cell_height=set_size[1]):
-
-        self.width = cell_width
-        self.height = cell_height
-
-
-    def draw(self, surface, cell_size=set_size):
-
-        screen_width, screen_height = surface.get_size()
-        cell_width, cell_height = cell_size
-
-        cols = screen_width // cell_width
-        for col in range(cols):
-            start_pos = (col * set_size[0], 0)
-            end_pos = (col * set_size[0], screen_height)
-            pygame.draw.line(surface, BLACK, start_pos, end_pos)
-
-        rows = screen_height // cell_height
-        for row in range(rows):
-            start_pos = (0, row * set_size[1])
-            end_pos = (screen_width, row * set_size[1])
-            pygame.draw.line(surface, BLACK, start_pos, end_pos)
-
-
-
-class Tile(pygame.sprite.Sprite):
-
-
-    def __init__(self, size=set_size, pos=(0, 0)):
-        super().__init__()
-
-        self.size = size
-        self.pos = pos
-        self.cell = cell_pos(self.pos)
-        self.image = pygame.Surface(self.size)
-        self.rect = pygame.Rect(*pos, *size)
-
-        self.image.fill(TRANSPARENT)
-        self.image.set_colorkey(TRANSPARENT)
-
-
-
-class Button(pygame.sprite.Sprite):
-
-
-    def __init__(self, size=set_size, pos=(0, 0)):
-        super().__init__()
-
-        self.size = size
-        self.pos = pos
-        self.cell = cell_pos(self.pos)
-        self.image = pygame.Surface(self.size)
-        self.rect = pygame.Rect(*pos, *size)
-
-        self.text_str = 'Default'
-        self.name = 'Button'
-        self.color = MY_RED
-        self.image.fill(self.color)
-
-
-
-class Mouse:
-
-
-    def __init__(self):
-        
-        self.pos = (0, 0)
-        self.cell = (0, 0)
-        '''
-        self.left_down = None
-        self.right_down = None
-        self.left_up = None
-        self.right_up = None
-        self.cell_clicked = None
-        self.tile = None
-        '''
-        self.reset()
-
-
-    def reset(self):
-
-        self.left_down = None
-        self.right_down = None
-        self.left_up = None
-        self.right_up = None
-        self.cell_clicked = None
-        self.tile = None
-
-
-
-
-## Main Game Loop
-running = True
 ## Testing
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
@@ -144,6 +17,7 @@ set_path = set_path + which_set
 tile_map = tm.Tile_map(set_path, set_size)
 #tile_map.tile_set = tile_map.tile_set.convert_alpha()
 
+
 ## Convert tiles.
 tiles = []
 for tile in tile_map.tiles:
@@ -153,59 +27,38 @@ for tile in tile_map.tiles:
     tiles.append(new_tile)
 tile_map.tiles = tiles
 
+
 ## Create toggle buttons.
-b_default = Button()
-b_default.image.fill(MY_GREEN)
-b_default.rect = b_default.image.get_rect()
-b_default.cell = (18, 0)
-b_default.pos = (18 * set_size[0], 0)
-b_default.rect = b_default.rect.move(*b_default.pos)
-b_default.name = 'default'
+x_cell = 35
+y_cell = 0
+b_cell = (x_cell * set_size[0], y_cell)
+b_grid = Button(pos=b_cell)
+b_grid.image.fill(MY_RED)
+b_grid.name = 'Grid'
+b_grid.toggled = True
+font = pygame.font.SysFont('Arial', 32)
+b_grid_text = font.render('G', True, BLACK)
+b_grid_text_rect = b_grid_text.get_rect()
+b_grid_text_rect = b_grid_text_rect.move(4, 0)
+b_grid.image.blit(b_grid_text, b_grid_text_rect)
 
-b_night = Button()
-b_night.image.fill(BLUE)
-b_night.rect = b_night.image.get_rect()
-b_night.cell = (17, 0)
-b_night.pos = (17 * set_size[0], 0)
-b_night.rect = b_night.rect.move(*b_night.pos)
-b_night.name = 'night'
+toggle_buttons = [b_grid]
 
-b_hot = Button()
-b_hot.image.fill(MY_RED)
-b_hot.rect = b_hot.image.get_rect()
-b_hot.cell = (16, 0)
-b_hot.pos = (16 * set_size[0], 0)
-b_hot.rect = b_hot.rect.move(*b_hot.pos)
-b_hot.name = 'hot'
-
-#toggle_buttons = [b_default, b_night, b_hot]
-
-b_drop = Button()
-b_drop.image.fill(MY_RED)
-b_drop.rect = b_drop.image.get_rect()
-b_drop.cell = (18, 0)
-b_drop.pos = (b_drop.cell[0] * set_size[0], b_drop.cell[1] * set_size[1])
-b_drop.rect = b_drop.rect.move(*b_drop.pos)
-b_drop.name = 'drop'
-b_drop.description = '1 time drag-drop'
-b_drop.toggled = False
-
-b_drag = Button()
-b_drag.image.fill(MY_GREEN)
-b_drag.rect = b_drag.image.get_rect()
-b_drag.cell = (17, 0)
-b_drag.pos = (b_drag.cell[0] * set_size[0], b_drag.cell[1] * set_size[1])
-b_drag.rect = b_drag.rect.move(*b_drag.pos)
-b_drag.name = 'drag'
-b_drag.description = 'many drag-drop'
-b_drop.toggled = False
-
-#toggle_buttons = [b_drop, b_drag]
-
-toggle_buttons = []
 
 ## Create select buttons.
-select_buttons = []
+x_cell = 32
+y_cell = 0
+b_cell = (x_cell * set_size[0], y_cell)
+b_eraser = Button(pos=b_cell)
+b_eraser.image.fill(WHITE)
+b_eraser.name = 'Eraser'
+font = pygame.font.SysFont('Arial', 32)
+b_eraser_text = font.render('E', True, BLACK)
+b_eraser_text_rect = b_eraser_text.get_rect()
+b_eraser_text_rect = b_eraser_text_rect.move(4, 0)
+b_eraser.image.blit(b_eraser_text, b_eraser_text_rect)
+
+select_buttons = [b_eraser]
 
 sh_padding = 2  # selectable height padding
 # cell_height of panel holding selectable buttons.
@@ -234,23 +87,37 @@ for tile in tiles:
 
 button_cells = [button.cell for button in toggle_buttons + select_buttons]
 
+
 ## Groups for toggle and select buttons.
 toggle_buttons_group = pygame.sprite.Group(toggle_buttons)
 select_buttons_group = pygame.sprite.Group(select_buttons)
 
+
 ## Group of created map tiles.
 map_tiles = pygame.sprite.Group()
 
+
 ## Text rendering.
-font = pygame.font.SysFont('Arial', 16)
+font = pygame.font.SysFont('Arial', 24)
 font_color = BLACK
-text = font.render('(0, 0)', True, font_color)
-text_rect = text.get_rect()
-text_rect.bottomleft = (0, screen_size[1])
+
+tracker = font.render('(0, 0)', True, font_color)
+tracker_rect = tracker.get_rect()
+
+tracker_x = 4
+tracker_y = (screen_size[1] - set_size[1]) + 2
+tracker_pos = (tracker_x, tracker_y)
+
+tracker_rect.topleft = tracker_pos
 
 
+## Mouse
 mouse = Mouse()
 
+
+
+## Main Game Loop
+running = True
 
 while running:
 
@@ -266,9 +133,8 @@ while running:
             mouse.pos = event.pos
             mouse.cell = cell_pos(mouse.pos)
 
-            text_str = str(mouse.cell)
-            text = font.render(text_str, True, font_color)
-            text_rect.bottomleft = (0, screen_size[1])
+            tracker = font.render(str(mouse.cell), True, font_color)
+            tracker_rect.topleft = tracker_pos
 
         if event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -376,7 +242,8 @@ while running:
     map_tiles.draw(screen)
 
     ## Draw grid lines.
-    grid.draw(screen)
+    if b_grid.toggled:
+        grid.draw(screen)
 
     ## Draw selected tile at mouse location.
     if mouse.tile:
@@ -387,7 +254,7 @@ while running:
         screen.blit(mouse.tile.image, sub_pos)
 
     ## Draw text (mouse.pos coordinates at screen.bottomleft)
-    screen.blit(text, text_rect)
+    screen.blit(tracker, tracker_rect)
     pygame.display.flip()
 
 pygame.quit()
