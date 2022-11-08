@@ -74,7 +74,7 @@ class Tile(pygame.sprite.Sprite):
         self.pos = pos
         self.cell = cell_pos(self.pos)
         self.image = pygame.Surface(self.size)
-        self.rect = self.image.get_rect()
+        self.rect = pygame.Rect(*pos, *size)
 
         self.image.fill(TRANSPARENT)
         self.image.set_colorkey(TRANSPARENT)
@@ -90,15 +90,48 @@ class Button(pygame.sprite.Sprite):
         self.size = size
         self.pos = pos
         self.cell = cell_pos(self.pos)
-        self.text_str = 'Default'
         self.image = pygame.Surface(self.size)
-        self.rect = self.image.get_rect()
+        self.rect = pygame.Rect(*pos, *size)
 
+        self.text_str = 'Default'
         self.name = 'Button'
         self.color = MY_RED
         self.image.fill(self.color)
 
 
+
+class Mouse:
+
+
+    def __init__(self):
+        
+        self.pos = (0, 0)
+        self.cell = (0, 0)
+        '''
+        self.left_down = None
+        self.right_down = None
+        self.left_up = None
+        self.right_up = None
+        self.cell_clicked = None
+        self.tile = None
+        '''
+        self.reset()
+
+
+    def reset(self):
+
+        self.left_down = None
+        self.right_down = None
+        self.left_up = None
+        self.right_up = None
+        self.cell_clicked = None
+        self.tile = None
+
+
+
+
+## Main Game Loop
+running = True
 ## Testing
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
@@ -199,6 +232,8 @@ for tile in tiles:
         col = 0
         row = row + 1
 
+button_cells = [button.cell for button in toggle_buttons + select_buttons]
+
 ## Groups for toggle and select buttons.
 toggle_buttons_group = pygame.sprite.Group(toggle_buttons)
 select_buttons_group = pygame.sprite.Group(select_buttons)
@@ -214,29 +249,8 @@ text_rect = text.get_rect()
 text_rect.bottomleft = (0, screen_size[1])
 
 
-
-
-class Mouse:
-
-
-    def __init__(self):
-        
-        self.pos = (0, 0)
-        self.cell = (0, 0)
-        self.left_down = None
-        self.right_down = None
-        self.left_up = None
-        self.right_up = None
-        self.cell_clicked = None
-        self.tile = None
-
-
 mouse = Mouse()
 
-
-
-## Main Game Loop
-running = True
 
 while running:
 
@@ -336,17 +350,27 @@ while running:
 
     elif mouse.cell_clicked and mouse.tile:
 
-        temp = [map_tile.pos for map_tile in map_tiles]
+        ## Do not place mouse.tile on an existing button.cell.
+        if mouse.cell_clicked in button_cells:
+
+            mouse.cell_clicked = None
 
         ## Place mouse.tile on mouse.cell_clicked.
-        pix_pos = pixel_pos(mouse.cell_clicked)
+        elif mouse.cell_clicked not in [map_tile.pos for map_tile in map_tiles]:
 
-        if mouse.cell_clicked not in temp:
+            pix_pos = pixel_pos(mouse.cell_clicked)
+            new_tile = Tile()
+            new_tile.image.blit(mouse.tile.image, (0, 0))
+            new_tile.rect = new_tile.image.get_rect()
+            new_tile.rect.topleft = (0, 0)
+            new_tile.rect = new_tile.rect.move(pix_pos)
+            map_tiles.add(new_tile)
+            mouse.cell_clicked = None
 
-            mouse.tile.rect = mouse.tile.rect.move(pix_pos)
-            map_tiles.add(mouse.tile)
+    ## Cancel mouse action on right click.
+    if mouse.right_down:
 
-        mouse.tile = None
+        mouse.reset()
 
     ## Draw map tiles.
     map_tiles.draw(screen)
