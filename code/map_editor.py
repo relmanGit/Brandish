@@ -9,6 +9,7 @@ from hellper import *
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
 grid = Grid()
+grid.toggled = True
 
 background = pygame.Surface(screen.get_size())
 background.fill(MY_BLUE)
@@ -242,7 +243,8 @@ while running:
     map_tiles.draw(screen)
 
     ## Draw grid lines.
-    if b_grid.toggled:
+    grid.toggled = b_grid.toggled
+    if grid.toggled:
         grid.draw(screen)
 
     ## Draw selected tile at mouse location.

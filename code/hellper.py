@@ -26,7 +26,7 @@ def cell_pos(pixel_pos, cell_size=set_size):
     return (cell_x, cell_y)
 
 def pixel_pos(cell_pos, cell_size=set_size):
-    
+
     cell_width, cell_height = cell_size
     cell_x, cell_y = cell_pos
     pix_x = cell_x * cell_width
@@ -43,6 +43,7 @@ class Grid:
 
         self.width = cell_width
         self.height = cell_height
+        self.toggled = False
 
 
     def draw(self, surface, cell_size=set_size):
@@ -105,7 +106,7 @@ class Mouse:
 
 
     def __init__(self):
-        
+
         self.pos = (0, 0)
         self.cell = (0, 0)
         '''
