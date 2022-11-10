@@ -2,10 +2,11 @@ import pygame
 from constants import *
 import tile_map as tm
 from hellper import *
+from typewriter import *
 
 
 
-## Testing
+## Testing ##
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
 grid = Grid()
@@ -19,7 +20,7 @@ tile_map = tm.Tile_map(set_path, set_size)
 #tile_map.tile_set = tile_map.tile_set.convert_alpha()
 
 
-## Convert tiles.
+## Convert tiles ##
 tiles = []
 for tile in tile_map.tiles:
     new_tile = Tile()
@@ -29,7 +30,7 @@ for tile in tile_map.tiles:
 tile_map.tiles = tiles
 
 
-## Create toggle buttons.
+## Create toggle buttons ##
 x_cell = 35
 y_cell = 0
 b_cell = (x_cell * set_size[0], y_cell)
@@ -46,7 +47,7 @@ b_grid.image.blit(b_grid_text, b_grid_text_rect)
 toggle_buttons = [b_grid]
 
 
-## Create select buttons.
+## Create select buttons ##
 x_cell = 32
 y_cell = 0
 b_cell = (x_cell * set_size[0], y_cell)
@@ -89,35 +90,35 @@ for tile in tiles:
 button_cells = [button.cell for button in toggle_buttons + select_buttons]
 
 
-## Groups for toggle and select buttons.
+## Groups for toggle and select buttons ##
 toggle_buttons_group = pygame.sprite.Group(toggle_buttons)
 select_buttons_group = pygame.sprite.Group(select_buttons)
 
 
-## Group of created map tiles.
+## Group of created map tiles ##
 map_tiles = pygame.sprite.Group()
 
 
-## Text rendering.
-font = pygame.font.SysFont('Arial', 24)
-font_color = BLACK
 
-tracker = font.render('(0, 0)', True, font_color)
-tracker_rect = tracker.get_rect()
+## Text rendering ##
+tp = Typewriter()
+
+tracker = Text(tp.write('(0, 0)'))
 
 tracker_x = 4
 tracker_y = (screen_size[1] - set_size[1]) + 2
 tracker_pos = (tracker_x, tracker_y)
 
-tracker_rect.topleft = tracker_pos
+tracker.rect.topleft = tracker_pos
 
 
-## Mouse
+
+## Mouse ##
 mouse = Mouse()
 
 
 
-## Main Game Loop
+## Main Game Loop ##
 running = True
 
 while running:
@@ -133,19 +134,18 @@ while running:
 
             mouse.pos = event.pos
             mouse.cell = cell_pos(mouse.pos)
-
-            tracker = font.render(str(mouse.cell), True, font_color)
-            tracker_rect.topleft = tracker_pos
+            text = tp.write(str(mouse.cell))
+            tracker.rewrite(text)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
 
-            ## Left click pressed.
+            ## Left click pressed ##
             if event.button == 1:
 
                 mouse.left_down = cell_pos(event.pos)
                 mouse.cell_clicked = None
 
-            ## Right click pressed.
+            ## Right click pressed ##
             elif event.button == 3:
 
                 mouse.right_down = cell_pos(event.pos)
@@ -153,7 +153,7 @@ while running:
 
         if event.type == pygame.MOUSEBUTTONUP:
 
-            ## Left click released.
+            ## Left click released ##
             if event.button == 1:
 
                 mouse.left_up = cell_pos(event.pos)
@@ -162,18 +162,18 @@ while running:
 
                     mouse.cell_clicked = mouse.cell
 
-            ## Right click released.
+            ## Right click released ##
             if event.button == 3:
                 pass
 
-    ## Blit background and buttons.
+    ## Blit background and buttons ##
     screen.blit(background, (0, 0))
     toggle_buttons_group.draw(screen)
     select_buttons_group.draw(screen)
 
     if mouse.cell_clicked and not mouse.tile:
 
-        ## Check if toggle button was clicked.
+        ## Check if toggle button was clicked ##
         done = False
 
         for button in toggle_buttons_group.sprites():
@@ -192,7 +192,7 @@ while running:
 
                 break
 
-        ## Check if select button was clicked.
+        ## Check if select button was clicked ##
         if not done:
 
             for button in select_buttons_group.sprites():
@@ -217,12 +217,12 @@ while running:
 
     elif mouse.cell_clicked and mouse.tile:
 
-        ## Do not place mouse.tile on an existing button.cell.
+        ## Do not place mouse.tile on an existing button.cell ##
         if mouse.cell_clicked in button_cells:
 
             mouse.cell_clicked = None
 
-        ## Place mouse.tile on mouse.cell_clicked.
+        ## Place mouse.tile on mouse.cell_clicked ##
         elif mouse.cell_clicked not in [map_tile.pos for map_tile in map_tiles]:
 
             pix_pos = pixel_pos(mouse.cell_clicked)
@@ -234,20 +234,20 @@ while running:
             map_tiles.add(new_tile)
             mouse.cell_clicked = None
 
-    ## Cancel mouse action on right click.
+    ## Cancel mouse action on right click ##
     if mouse.right_down:
 
         mouse.reset()
 
-    ## Draw map tiles.
+    ## Draw map tiles ##
     map_tiles.draw(screen)
 
-    ## Draw grid lines.
+    ## Draw grid lines ##
     grid.toggled = b_grid.toggled
     if grid.toggled:
         grid.draw(screen)
 
-    ## Draw selected tile at mouse location.
+    ## Draw selected tile at mouse location ##
     if mouse.tile:
 
         sub_x, sub_y = mouse.pos
@@ -256,7 +256,7 @@ while running:
         screen.blit(mouse.tile.image, sub_pos)
 
     ## Draw text (mouse.pos coordinates at screen.bottomleft)
-    screen.blit(tracker, tracker_rect)
+    screen.blit(tracker.image, tracker.rect)
     pygame.display.flip()
 
 pygame.quit()
