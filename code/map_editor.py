@@ -6,6 +6,8 @@ from typewriter import *
 
 
 
+print('testing')
+
 ## Testing ##
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
