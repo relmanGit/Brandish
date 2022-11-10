@@ -3,6 +3,7 @@ from constants import *
 from animation import *
 from hellper import *
 from entity import *
+from typewriter import *
 
 
 
@@ -25,17 +26,15 @@ tile_map = tm.Tile_map(set_path, set_size)
 
 
 ## Text rendering ##
-font = pygame.font.SysFont('Arial', 24)
-font_color = BLACK
+tp = Typewriter()
 
-tracker = font.render('(0, 0)', True, font_color)
-tracker_rect = tracker.get_rect()
+tracker = Text(tp.write('(0, 0)'))
 
 tracker_x = 4
 tracker_y = (screen_size[1] - set_size[1]) + 2
 tracker_pos = (tracker_x, tracker_y)
 
-tracker_rect.topleft = tracker_pos
+tracker.rect.topleft = tracker_pos
 
 
 ## Mouse ##
@@ -87,9 +86,8 @@ while running:
 
             mouse.pos = event.pos
             mouse.cell = cell_pos(mouse.pos)
-
-            tracker = font.render(str(mouse.cell), True, font_color)
-            tracker_rect.topleft = tracker_pos
+            text = tp.write(str(mouse.cell))
+            tracker.rewrite(text)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -146,7 +144,7 @@ while running:
         screen.blit(mouse.tile.image, sub_pos)
 
     ## Draw text (mouse.pos coordinates at screen.bottomleft)
-    screen.blit(tracker, tracker_rect)
+    screen.blit(tracker.image, tracker.rect)
     pygame.display.flip()
 
 pygame.quit()
