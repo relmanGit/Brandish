@@ -25,6 +25,7 @@ def cell_pos(pixel_pos, cell_size=set_size):
     cell_y = (pix_y // cell_height)
     return (cell_x, cell_y)
 
+
 def pixel_pos(cell_pos, cell_size=set_size):
 
     cell_width, cell_height = cell_size
@@ -32,6 +33,45 @@ def pixel_pos(cell_pos, cell_size=set_size):
     pix_x = cell_x * cell_width
     pix_y = cell_y * cell_height
     return (pix_x, pix_y)
+
+
+def craft_buttons(tiles):
+
+    buttons = []
+
+    ## Should be replaced with pannel ##
+    sh_padding = 2  # selectable height padding
+    # cell_height of panel holding selectable buttons.
+    selectable_height = (screen_size[1] // set_size[1]) - sh_padding
+
+    # cell_width of panel holding selecable buttons.
+    selectable_width = 1 + (len(tiles) // selectable_height)
+    selectable_width = 6
+    ## End ##
+
+    row = 2
+    col_start = (screen_size[0] // set_size[0]) - selectable_width - 2
+    col = 0
+
+    for tile in tiles:
+
+        button = Button()
+        button.image = tile.image
+        button.rect = button.image.get_rect()
+
+        column = (col_start + col)
+        button.cell = (column, row)
+        button.pos = (column * set_size[0], row * set_size[1])
+        button.rect.topleft = button.pos
+
+        buttons.append(button)
+
+        col = col + 1
+        if col > selectable_width:
+            col = 0
+            row = row + 1
+
+    return buttons
 
 
 
@@ -95,9 +135,9 @@ class Button(pygame.sprite.Sprite):
         self.rect = pygame.Rect(*pos, *size)
         self.toggled = False
 
-        self.text_str = 'Default'
+        self.text = None
         self.name = 'Button'
-        self.color = MY_RED
+        self.color = WHITE
         self.image.fill(self.color)
 
 

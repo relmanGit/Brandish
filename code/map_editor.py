@@ -30,63 +30,55 @@ for tile in tile_map.tiles:
 tile_map.tiles = tiles
 
 
-## Create toggle buttons ##
-x_cell = 35
+## Typewriter and text rendering ##
+tp = Typewriter()
+
+tracker_x = 4
+tracker_y = (screen_size[1] - set_size[1]) + 2
+tracker_pos = (tracker_x, tracker_y)
+
+tracker = Text(tp.write('(0, 0)'))
+tracker.rect.topleft = tracker_pos
+
+grid_text = Text(tp.write('G'))
+grid_text.rect.topleft = (7, 4)
+
+clear_text = Text(tp.write('C'))
+clear_text.rect.topleft = (7, 4)
+
+eraser_text = Text(tp.write('E'))
+eraser_text.rect.topleft = (8, 4)
+
+
+## Toggle buttons ##
+x_cell = 34
 y_cell = 0
 b_cell = (x_cell * set_size[0], y_cell)
 b_grid = Button(pos=b_cell)
-b_grid.image.fill(MY_RED)
-b_grid.name = 'Grid'
 b_grid.toggled = True
-font = pygame.font.SysFont('Arial', 32)
-b_grid_text = font.render('G', True, BLACK)
-b_grid_text_rect = b_grid_text.get_rect()
-b_grid_text_rect = b_grid_text_rect.move(4, 0)
-b_grid.image.blit(b_grid_text, b_grid_text_rect)
+b_grid.name = 'Grid'
+b_grid.image.blit(grid_text.image, grid_text.rect)
 
-toggle_buttons = [b_grid]
+x_cell = 38
+b_cell = (x_cell * set_size[0], y_cell)
+b_clear = Button(pos=b_cell)
+b_clear.name = 'Clear'
+b_clear.image.blit(clear_text.image, clear_text.rect)
+
+toggle_buttons = [b_grid, b_clear]
 
 
-## Create select buttons ##
+## Select buttons ##
 x_cell = 32
-y_cell = 0
 b_cell = (x_cell * set_size[0], y_cell)
 b_eraser = Button(pos=b_cell)
-b_eraser.image.fill(WHITE)
 b_eraser.name = 'Eraser'
-font = pygame.font.SysFont('Arial', 32)
-b_eraser_text = font.render('E', True, BLACK)
-b_eraser_text_rect = b_eraser_text.get_rect()
-b_eraser_text_rect = b_eraser_text_rect.move(4, 0)
-b_eraser.image.blit(b_eraser_text, b_eraser_text_rect)
+b_eraser.image.blit(eraser_text.image, eraser_text.rect)
 
-select_buttons = [b_eraser]
+select_buttons = [b_eraser] + craft_buttons(tiles)
 
-sh_padding = 2  # selectable height padding
-# cell_height of panel holding selectable buttons.
-selectable_height = (screen_size[1] // set_size[1]) - sh_padding
 
-# cell_width of panel holding selecable buttons.
-selectable_width = 1 + (len(tiles) // selectable_height)
-selectable_width = 6
-
-row = 2
-col_start = (screen_size[0] // set_size[0]) - selectable_width - 2
-col = 0
-for tile in tiles:
-    button = Button()
-    button.image = tile.image
-    button.rect = button.image.get_rect()
-    column = (col_start + col)
-    button.cell = (column, row)
-    button.pos = (column * set_size[0], row * set_size[1])
-    button.rect = button.rect.move(*button.pos)
-    select_buttons.append(button)
-    col = col + 1
-    if col > selectable_width:
-        col = 0
-        row = row + 1
-
+## All button cell positions ##
 button_cells = [button.cell for button in toggle_buttons + select_buttons]
 
 
@@ -97,20 +89,6 @@ select_buttons_group = pygame.sprite.Group(select_buttons)
 
 ## Group of created map tiles ##
 map_tiles = pygame.sprite.Group()
-
-
-
-## Text rendering ##
-tp = Typewriter()
-
-tracker = Text(tp.write('(0, 0)'))
-
-tracker_x = 4
-tracker_y = (screen_size[1] - set_size[1]) + 2
-tracker_pos = (tracker_x, tracker_y)
-
-tracker.rect.topleft = tracker_pos
-
 
 
 ## Mouse ##
@@ -130,6 +108,7 @@ while running:
             running = False
             break
 
+        ## Track mouse cell position ##
         if event.type == pygame.MOUSEMOTION:
 
             mouse.pos = event.pos
@@ -166,10 +145,12 @@ while running:
             if event.button == 3:
                 pass
 
+
     ## Blit background and buttons ##
     screen.blit(background, (0, 0))
     toggle_buttons_group.draw(screen)
     select_buttons_group.draw(screen)
+
 
     if mouse.cell_clicked and not mouse.tile:
 
@@ -234,18 +215,31 @@ while running:
             map_tiles.add(new_tile)
             mouse.cell_clicked = None
 
+
     ## Cancel mouse action on right click ##
     if mouse.right_down:
 
         mouse.reset()
 
+
+    ## Check clear_screen button ##
+    if b_clear.toggled:
+
+        map_tiles.empty()
+        b_clear.toggled = False
+
+
     ## Draw map tiles ##
     map_tiles.draw(screen)
 
+
     ## Draw grid lines ##
     grid.toggled = b_grid.toggled
+
     if grid.toggled:
+
         grid.draw(screen)
+
 
     ## Draw selected tile at mouse location ##
     if mouse.tile:
@@ -255,9 +249,11 @@ while running:
         sub_pos = (sub_x - offset_x, sub_y - offset_y)
         screen.blit(mouse.tile.image, sub_pos)
 
+
     ## Draw text (mouse.pos coordinates at screen.bottomleft)
     screen.blit(tracker.image, tracker.rect)
     pygame.display.flip()
+
 
 pygame.quit()
 
