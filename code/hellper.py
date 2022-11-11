@@ -35,7 +35,22 @@ def pixel_pos(cell_pos, cell_size=set_size):
     return (pix_x, pix_y)
 
 
-def craft_buttons(tiles):
+def get_button_clicked(buttons, mouse):
+
+    if mouse.cell_clicked:
+
+        for button in buttons:
+
+            button_cell = cell_pos(button.pos)
+
+            if mouse.cell_clicked == button_cell:
+
+                return button
+
+    return None
+
+
+def craft_tile_buttons(tiles):
 
     buttons = []
 
@@ -63,6 +78,8 @@ def craft_buttons(tiles):
         button.cell = (column, row)
         button.pos = (column * set_size[0], row * set_size[1])
         button.rect.topleft = button.pos
+
+        button.type = 'select'
 
         buttons.append(button)
 
@@ -133,6 +150,7 @@ class Button(pygame.sprite.Sprite):
         self.cell = cell_pos(self.pos)
         self.image = pygame.Surface(self.size)
         self.rect = pygame.Rect(*pos, *size)
+        self.type = 'toggle'
         self.toggled = False
 
         self.text = None

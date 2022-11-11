@@ -6,8 +6,6 @@ from typewriter import *
 
 
 
-print('testing')
-
 ## Testing ##
 pygame.init()
 screen = pygame.display.set_mode(screen_size)
@@ -53,31 +51,31 @@ eraser_text.rect.topleft = (8, 4)
 
 
 ## Toggle buttons ##
-x_cell = 34
+x_cell = 32
 y_cell = 0
-b_cell = (x_cell * set_size[0], y_cell)
-b_grid = Button(pos=b_cell)
+b_pos = (x_cell * set_size[0], y_cell)
+b_eraser = Button(pos=b_pos)
+b_eraser.name = 'Eraser'
+b_eraser.image.blit(eraser_text.image, eraser_text.rect)
+
+x_cell = 34
+b_pos = (x_cell * set_size[0], y_cell)
+b_grid = Button(pos=b_pos)
 b_grid.toggled = True
 b_grid.name = 'Grid'
 b_grid.image.blit(grid_text.image, grid_text.rect)
 
 x_cell = 38
-b_cell = (x_cell * set_size[0], y_cell)
-b_clear = Button(pos=b_cell)
+b_pos = (x_cell * set_size[0], y_cell)
+b_clear = Button(pos=b_pos)
 b_clear.name = 'Clear'
 b_clear.image.blit(clear_text.image, clear_text.rect)
 
-toggle_buttons = [b_grid, b_clear]
+toggle_buttons = [b_eraser, b_grid, b_clear]
 
 
 ## Select buttons ##
-x_cell = 32
-b_cell = (x_cell * set_size[0], y_cell)
-b_eraser = Button(pos=b_cell)
-b_eraser.name = 'Eraser'
-b_eraser.image.blit(eraser_text.image, eraser_text.rect)
-
-select_buttons = [b_eraser] + craft_buttons(tiles)
+select_buttons = craft_tile_buttons(tiles)
 
 
 ## All button cell positions ##
@@ -154,81 +152,83 @@ while running:
     select_buttons_group.draw(screen)
 
 
-    if mouse.cell_clicked and not mouse.tile:
+    ## Determine if cell_clicked is button or if should place tile ##
+    buttons = toggle_buttons + select_buttons
+    button_clicked = get_button_clicked(buttons, mouse)
+
+    if button_clicked:# and not mouse.tile:
 
         ## Check if toggle button was clicked ##
-        done = False
+        if button_clicked.type == 'toggle':
 
-        for button in toggle_buttons_group.sprites():
+            button_clicked.toggled = button_clicked.toggled ^ True
 
-            button_cell = cell_pos(button.pos)
+            name = button_clicked.name
 
-            if mouse.cell_clicked == button_cell:
+            if name == 'Eraser':
+                print(name, '=', button_clicked.toggled)
 
-                if button.toggled:
-                    button.toggled = False
-                else:
-                    button.toggled = True
-
-                mouse.cell_clicked = None
-                done = True
-
-                break
+            elif name == 'Clear':
+                print(name)
+                map_tiles.empty()
 
         ## Check if select button was clicked ##
-        if not done:
+        elif button_clicked.type == 'select':
 
-            for button in select_buttons_group.sprites():
+            tile = Tile()
+            tile.image.blit(button_clicked.image, (0, 0))
+            tile.image = tile.image.convert_alpha()
+            tile.pos = mouse.cell_clicked
 
-                button_cell = cell_pos(button.pos)
-
-                if mouse.cell_clicked == button_cell:
-                    '''
-                    col, row = cell_clicked
-                    area_pos = (col * set_size[0], row * set_size[1])
-                    area = pygame.Rect(*area_pos, *set_size)
-                    '''
-                    tile = Tile()
-                    tile.image.blit(button.image, (0, 0))
-                    tile.image = tile.image.convert_alpha()
-                    tile.pos = mouse.cell_clicked
-
-                    mouse.tile = tile
-                    mouse.cell_clicked = None
-
-                    break
-
-    elif mouse.cell_clicked and mouse.tile:
-
-        ## Do not place mouse.tile on an existing button.cell ##
-        if mouse.cell_clicked in button_cells:
-
+            mouse.tile = tile
             mouse.cell_clicked = None
 
-        ## Place mouse.tile on mouse.cell_clicked ##
-        elif mouse.cell_clicked not in [map_tile.pos for map_tile in map_tiles]:
+        mouse.cell_clicked = None
+
+    ### TODO: FIX PLEASE ###
+
+    ## If neither toggle nor select button was clicked ##
+    elif mouse.cell_clicked:
+
+        ## Determine if existing tile or if empty cell ##
+        clicked_tile = None
+        for tile in map_tiles:
+
+            if mouse.cell_clicked == cell_pos(tile.rect.topleft):
+
+                clicked_tile = tile
+
+        ## If cell_clicked has an existing tile ##
+        if clicked_tile:
+
+            ## Check eraser toggle ##
+            if b_eraser.toggled:
+
+                map_tiles.remove(clicked_tile)
+                print('remove successful')
+
+        ## Place mouse.tile on empty cell ##
+        else:
 
             pix_pos = pixel_pos(mouse.cell_clicked)
             new_tile = Tile()
             new_tile.image.blit(mouse.tile.image, (0, 0))
             new_tile.rect = new_tile.image.get_rect()
-            new_tile.rect.topleft = (0, 0)
-            new_tile.rect = new_tile.rect.move(pix_pos)
+            new_tile.rect.topleft = pix_pos
+            #new_tile.rect.topleft = (0, 0)
+            #new_tile.rect = new_tile.rect.move(pix_pos)
             map_tiles.add(new_tile)
-            mouse.cell_clicked = None
+        
+        mouse.cell_clicked = None
+
+    ### END TODO ###
 
 
     ## Cancel mouse action on right click ##
     if mouse.right_down:
 
         mouse.reset()
-
-
-    ## Check clear_screen button ##
-    if b_clear.toggled:
-
-        map_tiles.empty()
-        b_clear.toggled = False
+        b_eraser.toggled = False
 
 
     ## Draw map tiles ##
