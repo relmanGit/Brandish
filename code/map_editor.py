@@ -49,6 +49,9 @@ clear_text.rect.topleft = (7, 4)
 eraser_text = Text(tp.write('E'))
 eraser_text.rect.topleft = (8, 4)
 
+export_text = Text(tp.write('X'))
+export_text.rect.topleft = (9, 4)
+
 
 ## Toggle buttons ##
 x_cell = 32
@@ -58,7 +61,13 @@ b_eraser = Button(pos=b_pos)
 b_eraser.name = 'Eraser'
 b_eraser.image.blit(eraser_text.image, eraser_text.rect)
 
-x_cell = 34
+x_cell = 33
+b_pos = (x_cell * set_size[0], y_cell)
+b_clear = Button(pos=b_pos)
+b_clear.name = 'Clear'
+b_clear.image.blit(clear_text.image, clear_text.rect)
+
+x_cell = 35
 b_pos = (x_cell * set_size[0], y_cell)
 b_grid = Button(pos=b_pos)
 b_grid.toggled = True
@@ -67,11 +76,12 @@ b_grid.image.blit(grid_text.image, grid_text.rect)
 
 x_cell = 38
 b_pos = (x_cell * set_size[0], y_cell)
-b_clear = Button(pos=b_pos)
-b_clear.name = 'Clear'
-b_clear.image.blit(clear_text.image, clear_text.rect)
+b_export = Button(pos=b_pos)
+b_export.name = 'Export'
+b_export.image.blit(export_text.image, export_text.rect)
 
-toggle_buttons = [b_eraser, b_grid, b_clear]
+
+toggle_buttons = [b_eraser, b_clear, b_grid, b_export]
 
 
 ## Select buttons ##
@@ -171,6 +181,10 @@ while running:
             elif name == 'Clear':
                 print(name)
                 map_tiles.empty()
+
+            elif name == 'Export':
+                print(name)
+                export_map(map_tiles.sprites())
 
         ## Check if select button was clicked ##
         elif button_clicked.type == 'select':

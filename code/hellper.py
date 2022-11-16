@@ -50,6 +50,19 @@ def get_button_clicked(buttons, mouse):
     return None
 
 
+def export_map(tiles):
+
+    temp = sorted(tiles, key=lambda tile : cell_pos(tile.rect.topleft)[0])
+    temp.sort(key=lambda tile : cell_pos(tile.rect.topleft)[1])
+
+    for tile in temp:
+
+        x, y = tile.rect.topleft
+        #cell = (x // set_size[0], y // set_size[1])
+        cell = cell_pos(tile.rect.topleft)
+        print(cell)
+
+
 def craft_tile_buttons(tiles):
 
     buttons = []
