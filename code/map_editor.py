@@ -185,43 +185,37 @@ while running:
 
         mouse.cell_clicked = None
 
-    ### TODO: FIX PLEASE ###
-
     ## If neither toggle nor select button was clicked ##
     elif mouse.cell_clicked:
 
-        ## Determine if existing tile or if empty cell ##
-        clicked_tile = None
-        for tile in map_tiles:
+        if mouse.tile or b_eraser.toggled:
 
-            if mouse.cell_clicked == cell_pos(tile.rect.topleft):
+            ## Determine if existing tile or if empty cell ##
+            clicked_tile = None
+            for tile in map_tiles:
 
-                clicked_tile = tile
+                if mouse.cell_clicked == cell_pos(tile.rect.topleft):
 
-        ## If cell_clicked has an existing tile ##
-        if clicked_tile:
+                    clicked_tile = tile
 
-            ## Check eraser toggle ##
-            if b_eraser.toggled:
+            ## If cell has existing tile, remove it ##
+            if clicked_tile:
 
                 map_tiles.remove(clicked_tile)
-                print('remove successful')
 
-        ## Place mouse.tile on empty cell ##
-        else:
+            ## Place mouse.tile on empty(ied) cell ##
+            if mouse.tile:
 
-            pix_pos = pixel_pos(mouse.cell_clicked)
-            new_tile = Tile()
-            new_tile.image.blit(mouse.tile.image, (0, 0))
-            new_tile.rect = new_tile.image.get_rect()
-            new_tile.rect.topleft = pix_pos
-            #new_tile.rect.topleft = (0, 0)
-            #new_tile.rect = new_tile.rect.move(pix_pos)
-            map_tiles.add(new_tile)
+                pix_pos = pixel_pos(mouse.cell_clicked)
+                new_tile = Tile()
+                new_tile.image.blit(mouse.tile.image, (0, 0))
+                new_tile.rect = new_tile.image.get_rect()
+                new_tile.rect.topleft = pix_pos
+                #new_tile.rect.topleft = (0, 0)
+                #new_tile.rect = new_tile.rect.move(pix_pos)
+                map_tiles.add(new_tile)
         
         mouse.cell_clicked = None
-
-    ### END TODO ###
 
 
     ## Cancel mouse action on right click ##
