@@ -20,21 +20,22 @@ class Tile_map:
 
     def __init__(self, path, tile_size=(8, 8)):
 
-        self.tile_set = pygame.image.load(path)
+        self.tile_sheet = pygame.image.load(path)
         if tile_size != (8, 8):
-            width = tile_size[0] * (self.tile_set.get_width() // 8)
-            height = tile_size[1] * (self.tile_set.get_height() // 8)
+            width = tile_size[0] * (self.tile_sheet.get_width() // 8)
+            height = tile_size[1] * (self.tile_sheet.get_height() // 8)
             new_size = (width, height)
-            self.tile_set = pygame.transform.scale(self.tile_set, new_size)
+            self.tile_sheet = pygame.transform.scale(self.tile_sheet, new_size)
         self.tile_size = tile_size
-        self.tiles = []
-        self.__make_map()
+        self.tiles = self.__make_map()
 
 
     def __make_map(self):
 
-        sheet_width = self.tile_set.get_width()
-        sheet_height = self.tile_set.get_height()
+        tiles = []
+
+        sheet_width = self.tile_sheet.get_width()
+        sheet_height = self.tile_sheet.get_height()
 
         tile_width = self.tile_size[0]
         tile_height = self.tile_size[1]
@@ -52,9 +53,10 @@ class Tile_map:
 
                 tile = Tile(self.tile_size)
                 tile.area.topleft = pos
-                tile.pos = (col * tile_width, row * tile_height)
 
-                self.tiles.append(tile)
+                tiles.append(tile)
+
+        return tiles
 
 
 '''

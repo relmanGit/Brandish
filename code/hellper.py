@@ -55,12 +55,18 @@ def export_map(tiles):
     temp = sorted(tiles, key=lambda tile : cell_pos(tile.rect.topleft)[0])
     temp.sort(key=lambda tile : cell_pos(tile.rect.topleft)[1])
 
+    f = open('../maps/map.txt', 'w')
+    f.write('Cell : Sheet_pos\n')
+
     for tile in temp:
 
-        x, y = tile.rect.topleft
-        #cell = (x // set_size[0], y // set_size[1])
-        cell = cell_pos(tile.rect.topleft)
-        print(cell)
+        cell = str(tile.cell)
+        area = str(tile.area.topleft)
+        
+        line = f'{cell} : {area}\n'
+        f.write(line)
+
+    f.close()
 
 
 def craft_tile_buttons(tiles):
@@ -84,6 +90,7 @@ def craft_tile_buttons(tiles):
     for tile in tiles:
 
         button = Button()
+        button.tile = tile
         button.image = tile.image
         button.rect = button.image.get_rect()
 
@@ -141,11 +148,10 @@ class Tile(pygame.sprite.Sprite):
     def __init__(self, size=set_size, pos=(0, 0)):
         super().__init__()
 
-        self.size = size
-        self.pos = pos
-        self.cell = cell_pos(self.pos)
-        self.image = pygame.Surface(self.size)
+        self.area = None
+        self.image = pygame.Surface(size)
         self.rect = pygame.Rect(*pos, *size)
+        self.cell = cell_pos(pos)
 
         self.image.fill(TRANSPARENT)
         self.image.set_colorkey(TRANSPARENT)
@@ -170,6 +176,8 @@ class Button(pygame.sprite.Sprite):
         self.name = 'Button'
         self.color = WHITE
         self.image.fill(self.color)
+
+        self.tile = None
 
 
 

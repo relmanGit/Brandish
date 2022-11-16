@@ -24,7 +24,8 @@ tile_map = tm.Tile_map(set_path, set_size)
 tiles = []
 for tile in tile_map.tiles:
     new_tile = Tile()
-    new_tile.image.blit(tile_map.tile_set, (0, 0), tile.area)
+    new_tile.area = tile.area
+    new_tile.image.blit(tile_map.tile_sheet, (0, 0), tile.area)
     new_tile.image = new_tile.image.convert_alpha()
     tiles.append(new_tile)
 tile_map.tiles = tiles
@@ -193,6 +194,7 @@ while running:
             tile.image.blit(button_clicked.image, (0, 0))
             tile.image = tile.image.convert_alpha()
             tile.pos = mouse.cell_clicked
+            tile.area = button_clicked.tile.area
 
             mouse.tile = tile
             mouse.cell_clicked = None
@@ -225,8 +227,8 @@ while running:
                 new_tile.image.blit(mouse.tile.image, (0, 0))
                 new_tile.rect = new_tile.image.get_rect()
                 new_tile.rect.topleft = pix_pos
-                #new_tile.rect.topleft = (0, 0)
-                #new_tile.rect = new_tile.rect.move(pix_pos)
+                new_tile.cell = cell_pos(pix_pos)
+                new_tile.area = mouse.tile.area
                 map_tiles.add(new_tile)
         
         mouse.cell_clicked = None
