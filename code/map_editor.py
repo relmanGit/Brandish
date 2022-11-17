@@ -3,6 +3,7 @@ from constants import *
 import tile_map as tm
 from hellper import *
 from typewriter import *
+from panel import *
 
 
 
@@ -13,7 +14,7 @@ grid = Grid()
 grid.toggled = True
 
 background = pygame.Surface(screen.get_size())
-background.fill(MY_BLUE)
+background.fill(MY_GRAY)
 
 set_path = set_path + which_set
 tile_map = tm.Tile_map(set_path, set_size)
@@ -86,7 +87,8 @@ toggle_buttons = [b_eraser, b_clear, b_grid, b_export]
 
 
 ## Select buttons ##
-select_buttons = craft_tile_buttons(tiles)
+#select_buttons = craft_tile_buttons(tiles)
+select_buttons = craft_tile_buttons(tile_map.tiles)
 
 
 ## All button cell positions ##
@@ -104,6 +106,28 @@ map_tiles = pygame.sprite.Group()
 
 ## Mouse ##
 mouse = Mouse()
+
+
+## Panels ##
+game_map_size = (SCREEN_WIDTH, SCREEN_HEIGHT)
+panel_pos = (8, 5)
+panel_pos = tuple(e1 * e2 for e1, e2 in zip(panel_pos, set_size))
+game_map_panel = Panel(game_map_size, panel_pos)
+game_map_panel.image.convert_alpha()
+game_map_panel.image.fill(MY_BLUE)
+
+p_size = tile_map.tile_sheet.get_size()
+
+panel_x = (screen_size[0] - p_size[0]) - (1 * set_size[0])
+panel_y = (2 * set_size[1])
+p_pos = (panel_x, panel_y)
+
+panel = Panel(p_size, p_pos)
+panel.image.convert_alpha()
+
+panel.buttons = craft_buttons(tile_map.tiles, p_size)
+panel.button_group = pygame.sprite.Group(panel.buttons)
+panel.button_group.draw(panel.image)
 
 
 
@@ -161,6 +185,11 @@ while running:
     screen.blit(background, (0, 0))
     toggle_buttons_group.draw(screen)
     select_buttons_group.draw(screen)
+
+    ## game_map_panel ##
+    screen.blit(game_map_panel.image, game_map_panel.rect)
+    ## map_tile buttons panel ##
+    #screen.blit(panel.image, panel.rect)
 
 
     ## Determine if cell_clicked is button or if should place tile ##

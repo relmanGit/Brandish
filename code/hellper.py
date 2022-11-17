@@ -69,11 +69,45 @@ def export_map(tiles):
     f.close()
 
 
+## Panel version ##
+def craft_buttons(tiles, size):
+
+    buttons = []
+
+    width, height = size
+    cell_width, cell_height = (width // set_size[0], height // set_size[1])
+
+    col = 0
+    row = 0
+
+    for tile in tiles:
+
+        button = Button()
+        button.tile = tile
+        button.image = tile.image
+        button.rect = button.image.get_rect()
+
+        button.cell = (col, row)
+        button.pos = (col * set_size[0], row * set_size[1])
+        button.rect.topleft = button.pos
+
+        button.type = 'select'
+
+        col = col + 1
+        if col >= cell_width:
+            col = 0
+            row = row + 1
+
+        buttons.append(button)
+
+    return buttons
+
+
 def craft_tile_buttons(tiles):
 
     buttons = []
 
-    ## Should be replaced with pannel ##
+    ## Should be replaced with panel ##
     sh_padding = 2  # selectable height padding
     # cell_height of panel holding selectable buttons.
     selectable_height = (screen_size[1] // set_size[1]) - sh_padding
