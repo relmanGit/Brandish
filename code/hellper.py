@@ -6,11 +6,10 @@ import tile_map as tm
 
 ## Preset some settings.
 screen_size = (SCREEN_WIDTH*2, SCREEN_HEIGHT*2.1)
-set_path = f'../assets/img/platform_new/'
+set_path = f'../assets/img/map_sheet/'
 set_size = (32, 32)
 
-herotileset = 'hero_vert.png'
-mytileset = 'tile_set.png'
+herotileset = 'hero.png'
 
 which_set = herotileset
 
