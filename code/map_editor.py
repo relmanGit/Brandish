@@ -107,6 +107,10 @@ map_tiles = pygame.sprite.Group()
 mouse = Mouse()
 
 
+## Snapshot ##
+snapshot = pygame.Surface(screen_size)
+
+
 
 ## Main Game Loop ##
 running = True
@@ -182,7 +186,73 @@ while running:
 
             elif name == 'Clear':
                 print(name)
-                map_tiles.empty()
+                ## prompt to verify clear ##
+                ## goes here ##
+                prompt_width = 6 * set_size[0]
+                prompt_height = 2 * set_size[1]
+                prompt_size = (prompt_width, prompt_height)
+                prompt = pygame.Surface(prompt_size)
+                prompt.fill(WHITE)
+                prompt_x = 25
+                prompt_y = 0
+                prompt_pos = (prompt_x * set_size[0], prompt_y * set_size[1])
+
+                width_t = 2
+
+                yes_text = Text(tp.write('Yes'))
+                yes_text.rect.topleft = (8, 4)
+
+                b_pos = (set_size[0] // 2, set_size[1] // 2)
+                b_yes = Button(size=(width_t * set_size[0], set_size[1]), pos=b_pos)
+                b_yes.image.fill(MY_GREEN)
+                b_yes.image.blit(yes_text.image, yes_text.rect)
+                #prompt.add_button()
+
+                no_text = Text(tp.write('No'))
+                no_text.rect.topleft = (16, 4)
+
+                b_pos = ((set_size[0] * 3) + (set_size[0] // 2), set_size[1] // 2)
+                b_no = Button(size=(width_t * set_size[0], set_size[1]), pos=b_pos)
+                b_no.image.fill(MY_RED)
+                b_no.image.blit(no_text.image, no_text.rect)
+                #prompt.add_button()
+
+                prompt.blit(b_yes.image, b_yes.rect)
+                prompt.blit(b_no.image, b_no.rect)
+
+                answer = -1
+                while answer < 0:
+                    screen.blit(snapshot, (0, 0))
+                    screen.blit(prompt, prompt_pos)
+                    pygame.display.flip()
+                    for event in pygame.event.get():
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            mouse.pos = event.pos
+                            mouse.cell = cell_pos(mouse.pos)
+                            #text = tp.write(str(mouse.cell))
+                            #tracker.rewrite(text)
+                            b_yes_x = b_yes.rect.x + prompt_pos[0]
+                            b_yes_y = b_yes.rect.y + prompt_pos[1]
+                            b_yes_pos = (b_yes_x, b_yes_y)
+
+                            b_no_x = b_no.rect.x + prompt_pos[0]
+                            b_no_y = b_no.rect.y + prompt_pos[1]
+                            b_no_pos = (b_no_x, b_no_y)
+
+                            if b_yes_x < mouse.pos[0] and mouse.pos[0] < b_yes_x + \
+                            b_yes.rect.w:
+                                if b_yes_y < mouse.pos[1] and mouse.pos[1] < \
+                                b_yes_y + b_yes.rect.h:
+                                    print('yes pressed')
+                                    answer = 1
+                            elif b_no_x < mouse.pos[0] and mouse.pos[0] < b_no_x + \
+                            b_no.rect.w:
+                                if b_no_y < mouse.pos[1] and mouse.pos[1] < \
+                                b_no_y + b_no.rect.h:
+                                    print('no pressed')
+                                    answer = 0
+                if answer:
+                    map_tiles.empty()
 
             elif name == 'Export':
                 print(name)
@@ -265,6 +335,7 @@ while running:
 
     ## Draw text (mouse.pos coordinates at screen.bottomleft)
     screen.blit(tracker.image, tracker.rect)
+    snapshot.blit(screen, (0, 0))
     pygame.display.flip()
 
 
