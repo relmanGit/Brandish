@@ -1,6 +1,3 @@
-import pygame
-from constants import *
-import tile_map as tm
 from hellper import *
 from typewriter import *
 
@@ -40,42 +37,6 @@ tracker_pos = (tracker_x, tracker_y)
 tracker = Text(tp.write('(0, 0)'))
 tracker.rect.topleft = tracker_pos
 
-## Build yes/no prompt window ##
-width_t = 2
-
-yes_text = Text(tp.write('Yes'))
-yes_text.rect.topleft = (12, 4)
-
-b_pos = ((set_size[0] * 0) + (set_size[0] // 2), (set_size[1] * 1) + (set_size[1] // 2))
-b_yes = Button(size=(width_t * set_size[0], set_size[1]), pos=b_pos)
-b_yes.image.fill(MY_GREEN)
-b_yes.image.blit(yes_text.image, yes_text.rect)
-
-no_text = Text(tp.write('No'))
-no_text.rect.topleft = (16, 4)
-
-b_pos = ((set_size[0] * 3) + (set_size[0] // 2), (set_size[1] * 1) + (set_size[1] // 2))
-b_no = Button(size=(width_t * set_size[0], set_size[1]), pos=b_pos)
-b_no.image.fill(MY_RED)
-b_no.image.blit(no_text.image, no_text.rect)
-
-prompt_text = Text(tp.write('Are you sure?'))
-prompt_x = 25
-prompt_y = 0
-prompt_pos = (prompt_x * set_size[0], prompt_y * set_size[1])
-prompt_text.rect.topleft = (24, 8)
-
-prompt_width = 6 * set_size[0]
-prompt_height = 3 * set_size[1]
-prompt_size = (prompt_width, prompt_height)
-prompt = pygame.Surface(prompt_size)
-prompt.fill(WHITE)
-
-prompt.blit(prompt_text.image, prompt_text.rect)
-prompt.blit(b_yes.image, b_yes.rect)
-prompt.blit(b_no.image, b_no.rect)
-
-## Button texts ##
 grid_text = Text(tp.write('G'))
 grid_text.rect.topleft = (7, 4)
 
@@ -87,6 +48,88 @@ eraser_text.rect.topleft = (8, 4)
 
 export_text = Text(tp.write('X'))
 export_text.rect.topleft = (9, 4)
+
+
+
+## prompt class ##
+class Prompt:
+
+
+    ## prompt window size ##
+    width = 6 * set_size[0]
+    height = 3 * set_size[1]
+
+
+    def __init__(self, size=(width, height), pos=(0, 0)):
+
+        self.size = size
+        self.pos = pos
+        self.image = pygame.Surface(size)
+        self.rect = pygame.Rect(*pos, *size)
+
+        self.yes_button = None
+        self.__make_yes_button()
+
+        self.no_button = None
+        self.__make_no_button()
+
+        self.image.fill(WHITE)
+        self.image.blit(self.yes_button.image, self.yes_button.rect)
+        self.image.blit(self.no_button.image, self.no_button.rect)
+
+
+    def __make_yes_button(self):
+
+        width_t = 2
+        w = width_t * set_size[0]
+        h = set_size[1]
+        y = int(set_size[1] * (3 / 2))
+
+        text = Text(tp.write('Yes'))
+        text.rect.topleft = (12, 4)
+
+        size = (w, h)
+        x = int(set_size[0] * (1 / 2))
+        pos = (x, y)
+        
+        b = Button(size, pos)
+        b.image.fill(MY_GREEN)
+        b.image.blit(text.image, text.rect)
+        
+        self.yes_button = b
+
+
+    def __make_no_button(self):
+
+        width_t = 2
+        w = width_t * set_size[0]
+        h = set_size[1]
+        y = int(set_size[1] * (3 / 2))
+
+        text = Text(tp.write('No'))
+        text.rect.topleft = (16, 4)
+
+        size = (w, h)
+        x = int(set_size[0] * (7 / 2))
+        pos = (x, y)
+        
+        b = Button(size, pos)
+        b.image.fill(MY_RED)
+        b.image.blit(text.image, text.rect)
+
+        self.no_button = b
+
+
+
+## Build yes/no prompt window ##
+prompt_text = Text(tp.write('Are you sure?'))
+prompt_text.rect.topleft = (24, 8)
+
+prompt_x = 25
+prompt_y = 0
+prompt_pos = (prompt_x * set_size[0], prompt_y * set_size[1])
+prompt = Prompt(pos=prompt_pos)
+prompt.image.blit(prompt_text.image, prompt_text.rect)
 
 
 ## Toggle buttons ##
@@ -226,36 +269,61 @@ while running:
 
                 answer = -1
                 while answer < 0:
+
                     screen.blit(snapshot, (0, 0))
-                    screen.blit(prompt, prompt_pos)
+                    screen.blit(prompt.image, prompt.rect)
                     pygame.display.flip()
+
                     for event in pygame.event.get():
+
                         if event.type == pygame.MOUSEBUTTONDOWN:
+
                             mouse.pos = event.pos
 
-                            b_yes_x = prompt_pos[0] + b_yes.rect.x
-                            b_yes_y = prompt_pos[1] + b_yes.rect.y
+                            ## yes button ##
+                            b_temp = prompt.yes_button
+
+                            b_yes_x = prompt.pos[0] + b_temp.pos[0]
+                            b_yes_y = prompt.pos[1] + b_temp.pos[1]
                             b_yes_pos = (b_yes_x, b_yes_y)
 
-                            b_no_x = prompt_pos[0] + b_no.rect.x
-                            b_no_y = prompt_pos[1] + b_no.rect.y
+                            b_yes_w = b_temp.size[0]
+                            b_yes_h = b_temp.size[1]
+
+                            ## no button ##
+                            b_temp = prompt.no_button
+
+                            b_no_x = prompt.pos[0] + b_temp.pos[0]
+                            b_no_y = prompt.pos[1] + b_temp.pos[1]
                             b_no_pos = (b_no_x, b_no_y)
 
-                            if b_yes_x < mouse.pos[0] and mouse.pos[0] < b_yes_x + \
-                            b_yes.rect.w:
-                                if b_yes_y < mouse.pos[1] and mouse.pos[1] < \
-                                b_yes_y + b_yes.rect.h:
+                            b_no_w = b_temp.size[0]
+                            b_no_h = b_temp.size[1]
+
+                            ## something here ##
+                            if b_yes_x < mouse.pos[0] and \
+                                    mouse.pos[0] < b_yes_x + b_yes_w:
+
+                                if b_yes_y < mouse.pos[1] and \
+                                        mouse.pos[1] < b_yes_y + b_yes_h:
+
                                     answer = 1
-                            elif b_no_x < mouse.pos[0] and mouse.pos[0] < b_no_x + \
-                            b_no.rect.w:
-                                if b_no_y < mouse.pos[1] and mouse.pos[1] < \
-                                b_no_y + b_no.rect.h:
+
+                            elif b_no_x < mouse.pos[0] and \
+                                    mouse.pos[0] < b_no_x + b_no_w:
+
+                                if b_no_y < mouse.pos[1] and \
+                                        mouse.pos[1] < b_no_y + b_no_h:
+
                                     answer = 0
+
                 if answer:
+
                     map_tiles.empty()
 
             elif name == 'Export':
                 print(name)
+
                 export_map(map_tiles.sprites())
 
         ## Check if select button was clicked ##
