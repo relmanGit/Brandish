@@ -94,16 +94,18 @@ x_cell = 32
 y_cell = 0
 b_pos = (x_cell * set_size[0], y_cell)
 b_eraser = Button(pos=b_pos)
+b_eraser.image.fill(ERASER_PINK)
 b_eraser.name = 'Eraser'
 b_eraser.image.blit(eraser_text.image, eraser_text.rect)
 
-x_cell = 33
+x_cell = 34
 b_pos = (x_cell * set_size[0], y_cell)
 b_clear = Button(pos=b_pos)
+b_clear.image.fill(RED)
 b_clear.name = 'Clear'
 b_clear.image.blit(clear_text.image, clear_text.rect)
 
-x_cell = 35
+x_cell = 36
 b_pos = (x_cell * set_size[0], y_cell)
 b_grid = Button(pos=b_pos)
 b_grid.toggled = True
