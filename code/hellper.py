@@ -213,6 +213,22 @@ class Button(pygame.sprite.Sprite):
         self.tile = None
 
 
+    def clicked(self, mouse_pos):
+
+        bx, by = self.pos
+        bw, bh = self.size
+
+        mx, my = mouse_pos
+
+        if bx < mx and mx < bx + bw:
+
+            if by < my and my < by + bh:
+
+                return True
+
+        return False
+
+
 
 class Mouse:
 
